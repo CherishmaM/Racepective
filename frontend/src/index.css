@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0B0D12;
+  --bg-surface: #131720;
+  --bg-surface-elevated: #181D28;
+  --bg-surface-hover: #1E2432;
+  --border-subtle: #242A38;
+  --border-strong: #333B4E;
+  --text-primary: #F8F9FA;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent-red: #E10600;
+  --accent-red-hover: #B80500;
+}
+
+@layer base {
+  body {
+    background-color: #0B0D12;
+    color: #F8F9FA;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: 'Cabinet Grotesk', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom Motorsport Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0E1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #242A38;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #353E52;
+}
+
+/* Leaflet map custom popups */
+.leaflet-popup-content-wrapper {
+  background: #181A1F !important;
+  color: #F8F9FA !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+  padding: 4px !important;
+}
+.leaflet-popup-tip {
+  background: #181A1F !important;
+}
+.leaflet-container {
+  font-family: inherit !important;
+}
+
+/* ==========================================================================
+   Racepective Wireframe & Telemetry Animations
+   ========================================================================== */
+
+@keyframes circuit-draw-flow {
+  0% {
+    stroke-dashoffset: 1400;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -1400;
+  }
+}
+
+@keyframes scan-sweep-vertical {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  85% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(600%);
+    opacity: 0;
+  }
+}
+
+@keyframes telemetry-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes radar-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash-trace {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.animate-circuit-draw {
+  stroke-dasharray: 700 700;
+  animation: circuit-draw-flow 14s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-scan-sweep {
+  animation: scan-sweep-vertical 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-telemetry-pulse {
+  animation: telemetry-pulse 3.5s ease-in-out infinite;
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 10s linear infinite;
+  transform-origin: center;
+}
+
+.animate-dash-trace {
+  stroke-dasharray: 6 6;
+  animation: dash-trace 2.5s linear infinite;
+}
+
+/* Accessible Reduced Motion Guarantee */
+@media (prefers-reduced-motion: reduce) {
+  .animate-circuit-draw,
+  .animate-scan-sweep,
+  .animate-telemetry-pulse,
+  .animate-radar-sweep,
+  .animate-dash-trace {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    transform: none !important;
+  }
+}
