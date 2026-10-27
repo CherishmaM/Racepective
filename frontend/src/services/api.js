@@ -6,31 +6,45 @@
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
 
-async function request(endpoint) {
-  const url = `${API_BASE}/${endpoint.replace(/^\/+/, '')}`;
+async function fetchWithFallback(endpoint, options) {
+  const clean = endpoint.replace(/^\/+/, '');
+  const primaryUrl = `${API_BASE}/${clean}`;
+  
+  // Try primary URL
   try {
-    const res = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!res.ok) {
-      let errorDetail = res.statusText;
-      try {
-        const errJson = await res.json();
-        if (errJson.detail) errorDetail = errJson.detail;
-      } catch {
-        // Use status text if response is not JSON
-      }
-      throw new Error(`API error (${res.status}): ${errorDetail}`);
+    const res = await fetch(primaryUrl, options);
+    if (res.ok) return await res.json();
+    let errorDetail = res.statusText;
+    try {
+      const errJson = await res.json();
+      if (errJson.detail) errorDetail = errJson.detail;
+    } catch {}
+    throw new Error(`API error (${res.status}): ${errorDetail}`);
+  } catch (primaryErr) {
+    // If not a network error (e.g. 404/500 from server), don't try alternate host
+    if (primaryErr.message && primaryErr.message.startsWith('API error')) {
+      throw primaryErr;
     }
 
-    return await res.json();
-  } catch (err) {
-    console.error(`[Racepective API] Failed request to ${url}:`, err);
-    throw err;
+    // Attempt fallback host if network connection failed
+    const fallbackBase = API_BASE.startsWith('http') ? '/api' : 'http://127.0.0.1:8000/api';
+    const fallbackUrl = `${fallbackBase}/${clean}`;
+    try {
+      const fbRes = await fetch(fallbackUrl, options);
+      if (fbRes.ok) return await fbRes.json();
+    } catch {}
+
+    console.error(`[Racepective API] Failed request to ${primaryUrl} and fallback:`, primaryErr);
+    throw primaryErr;
   }
+}
+
+async function request(endpoint) {
+  return fetchWithFallback(endpoint, {
+    headers: {
+      'Accept': 'application/json',
+    },
+  });
 }
 
 export const api = {
